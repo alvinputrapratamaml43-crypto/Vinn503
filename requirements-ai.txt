@@ -1,0 +1,1 @@
+# Tidak diperlukan untuk Android/Termux. AI HD berjalan client-side dengan TensorFlow.js + ESRGAN Slim.

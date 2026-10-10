@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08050d">
+<title>VINN503 — Media Downloader v3</title>
+<link rel="icon" href="/logo.png">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+</head>
+<body>
+<div id="securityGate" class="security-gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-card">
+    <div class="gate-emblem"><span>V</span><i></i></div>
+    <div class="gate-kicker">VINN503 • SECURE ACCESS</div>
+    <h1 id="gateTitle">Menyiapkan <span>akses</span></h1>
+    <p id="gateMessage">Menginisialisasi sistem keamanan...</p>
+    <div class="gate-count-wrap"><div class="gate-count" id="gateCount">5</div><span>DETIK</span></div>
+    <div class="gate-progress"><i id="gateProgress"></i></div>
+    <div class="gate-status" id="gateStatus"><span class="gate-pulse"></span> MEMUAT MODUL KEAMANAN</div>
+    <button type="button" id="biometricButton" class="biometric-button" hidden><span class="fingerprint-icon" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M13 28c0-12 8-20 19-20s19 8 19 20M20 29c0-8 5-13 12-13s12 5 12 13M27 29c0-3 2-5 5-5s5 2 5 5c0 13-1 21-5 28M20 35c0 8-2 14-5 19M44 35c0 6 1 11 3 15M13 37c-1 5-2 9-4 12M51 37c1 4 2 7 4 10"/></svg></span><span><b>Sentuh untuk masuk</b></span><span class="gate-arrow">›</span></button>
+  </div>
+</div>
+
+<div id="welcomeLoader" class="welcome-loader"><div class="loader-orb"></div><div class="loader-brand">VINN<span>503</span></div><div class="loader-caption">MENYIAPKAN PENGALAMAN MEDIA</div><div class="loader-line"><i></i></div></div><div id="siteToast" class="site-toast" role="status" aria-live="polite" aria-hidden="true">
+  <span class="site-toast-mark" aria-hidden="true">i</span>
+  <span class="site-toast-copy"><strong>AM Premium</strong><span>Mohon maaf, AM Premium masih dalam proses pengembangan.</span></span>
+  <button type="button" class="site-toast-close" aria-label="Tutup pemberitahuan">×</button>
+</div>
+<div class="noise"></div><div class="aurora aurora-a"></div><div class="aurora aurora-b"></div><div class="grid-bg"></div>
+
+<header class="nav">
+  <a class="brand" href="#">
+    <div class="logo-wrap"><img src="/logo.png" alt="VINN503"></div>
+    <div class="brand-copy"><strong>VINN<span>503</span></strong><small>MEDIA DOWNLOADER</small></div>
+  </a>
+  <div class="nav-right"><button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="siteMenu"><span></span><span></span><span></span></button></div>
+</header>
+<div class="menu-backdrop" id="menuBackdrop" hidden></div>
+<aside class="site-menu" id="siteMenu" aria-hidden="true" aria-label="Menu utama">
+  <div class="menu-top"><div><span class="tiny-label">VINN503 NAVIGATION</span><h2>Menu utama</h2></div><button type="button" class="menu-close" id="menuClose" aria-label="Tutup menu">×</button></div>
+  <nav class="menu-links">
+    <a href="#top" data-menu-close><span class="menu-icon">⌂</span><span><b>Beranda</b><small>Halaman utama downloader</small></span><i>›</i></a>
+    <a href="#premiumSection" data-menu-close><span class="menu-icon">✦</span><span><b>AM Premium</b><small>Klaim akses dari magic link</small></span><i>›</i></a>
+    <a href="#downloadHistory" data-menu-close><span class="menu-icon">◷</span><span><b>Riwayat Download</b><small>Aktivitas di perangkat ini</small></span><i>›</i></a>
+    <a href="#downloadForm" data-menu-close><span class="menu-icon">⇩</span><span><b>Download Manager</b><small>Mulai unduhan media</small></span><i>›</i></a>
+    <a href="#systemTitle" data-menu-close><span class="menu-icon">▧</span><span><b>Tools & Status Sistem</b><small>Periksa layanan VINN503</small></span><i>›</i></a>
+    <a href="#bugTitle" data-menu-close><span class="menu-icon">⚑</span><span><b>Laporkan Kendala</b><small>Kirim laporan ke admin</small></span><i>›</i></a>
+    <a href="#helpSection" data-menu-close><span class="menu-icon">?</span><span><b>Pusat Bantuan</b><small>Panduan singkat penggunaan</small></span><i>›</i></a>
+    <a href="#" id="vinnAiNavLink" data-menu-close><span class="menu-icon">✦</span><span><b>VINN AI Chat</b><small>Tanya apa saja dengan AI</small></span><i>›</i></a>
+    <button type="button" id="themeToggle" class="menu-action"><span class="menu-icon">◐</span><span><b>Mode Tampilan</b><small id="themeLabel">Aktifkan tema terang</small></span><i>↔</i></button>
+    <a href="/admin"><span class="menu-icon">♙</span><span><b>Admin Dashboard</b><small>Login khusus admin</small></span><i>›</i></a>
+  </nav>
+  <section class="music-dock" aria-label="Pemutar musik VINN503">
+    <div class="music-dock-head"><span class="music-dock-glyph">♫</span><div><b>VINN503 MUSIC</b><small id="musicNowPlaying">Musik otomatis • Sempurna</small></div><span class="music-eq" id="musicEq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div>
+    <form id="musicSearchForm" class="music-search-form"><label for="musicSearchInput">Cari musik di YouTube</label><div class="music-search-row"><input id="musicSearchInput" type="search" placeholder="Judul lagu atau nama artis" autocomplete="off"><button type="submit" aria-label="Cari di YouTube">⌕</button></div></form>
+    <div class="music-dock-actions"><button type="button" id="musicSearchYouTube">Cari di YouTube</button><button type="button" id="musicPlaySelected">▶ Putar lagu</button></div>
+    <p class="music-dock-note">Pilih lagu di YouTube, salin tautannya, lalu tempel di kolom pencarian/tautan untuk memutarnya di sini. Autoplay bisa dibatasi browser.</p>
+    <div class="music-url-row"><input id="musicUrlInput" type="url" placeholder="Tempel link YouTube di sini" aria-label="Tautan lagu YouTube"><button type="button" id="musicLoadUrl">Muat</button></div>
+  </section>
+  <div class="menu-footer"><span class="menu-status-dot"></span> VINN503 <span>•</span> Versi 3.0</div>
+</aside>
+
+<div class="dev-notice" role="status" aria-label="Peringatan tahap pengembangan">
+  <div class="dev-notice-icon" aria-hidden="true">⚠</div>
+  <div class="dev-notice-copy"><strong>Website masih dalam tahap pengembangan</strong><p>Beberapa fitur mungkin masih mengalami bug atau kendala. Jika proses gagal, coba lagi beberapa saat kemudian. Terima kasih sudah membantu pengujian VINN503.</p></div>
+  <button class="dev-notice-close" type="button" aria-label="Tutup pemberitahuan" onclick="this.closest('.dev-notice').remove()">×</button>
+</div>
+
+<main id="top">
+<section class="welcome-video"><div class="section-label">VINN503 FEATURED</div><h2>Selamat datang di <span>VINN503</span></h2><p>Pengalaman media yang cepat, simpel, dan modern.</p><div class="video-frame"><video id="welcomeVideo" autoplay muted loop playsinline preload="metadata" controlslist="nodownload noplaybackrate" disablepictureinpicture disableremoteplayback tabindex="-1" aria-label="Video sambutan VINN503"><source src="https://videotourl.com/videos/1791505190370-488191bd-4ff4-4738-9ce1-aab427fbd1c9.mp4" type="video/mp4"></video><div class="video-shield"><span>VINN503</span><small>FEATURED VISUAL</small></div></div></section>
+
+<section class="hero">
+  <div class="pill"><span>✦</span> FAST • HD • SIMPLE</div>
+  <h1>Download media.<br><em>Tanpa ribet.</em></h1>
+  <p class="hero-text">YouTube & TikTok tinggal paste link. Untuk HD Video dan HD Foto, tinggal upload dari galeri. HD Foto punya mode Enhance 2× dan 4× untuk hasil lebih tajam.</p>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div><span class="tiny-label">DOWNLOAD CENTER</span><h2>Pilih sumber media</h2></div>
+      <div class="head-actions"><div class="shield">✓ Aman & cepat</div></div>
+    </div>
+
+    <div class="source-tabs">
+      <button class="source active source-youtube" data-type="youtube"><b class="source-logo youtube-logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg></b><span>YouTube</span></button>
+      <button class="source source-tiktok" data-type="tiktok"><b class="source-logo tiktok-logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.6 5.8a5.8 5.8 0 0 1-3.5-4.9V.5h-4.2v15.1a3.2 3.2 0 1 1-2.3-3.1V8.2a7.4 7.4 0 1 0 6.5 7.4V8a10 10 0 0 0 5.8 1.9V5.8h-2.3Z"/></svg></b><span>TikTok</span></button>
+      <button class="source" data-type="video"><b>▣</b><span>HD Video</span></button>
+      <button class="source" data-type="photo"><b>◉</b><span>HD Foto</span></button>
+    </div>
+
+    <form id="downloadForm">
+      <div id="urlArea">
+        <div class="input-title"><label for="url">LINK MEDIA</label><span id="typeHint">YouTube URL</span></div>
+        <div class="url-box">
+          <span class="link-icon">↗</span>
+          <input id="url" type="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=...">
+          <button type="button" id="pasteBtn">PASTE</button>
+        </div>
+      </div>
+
+      <div id="uploadArea" class="upload-area hidden">
+        <input id="fileInput" type="file" hidden>
+        <div class="upload-icon">↑</div>
+        <div class="upload-title" id="uploadTitle">Upload file</div>
+        <div class="upload-sub" id="uploadSub">Pilih video dari galeri atau tarik file ke sini</div>
+        <button type="button" class="choose-btn" id="chooseBtn">PILIH FILE</button>
+        <div class="file-name hidden" id="fileName"></div>
+      </div>
+
+      
+
+      <div class="settings">
+        <div class="setting">
+          <label for="quality">KUALITAS</label>
+          <div class="select-wrap"><select id="quality">
+            <option value="best">Best Available</option>
+            <option value="2160">4K • 2160p</option>
+            <option value="1440">2K • 1440p</option>
+            <option value="1080">Full HD • 1080p</option>
+            <option value="720">HD • 720p</option>
+            <option value="480">SD • 480p</option>
+          </select><span>⌄</span></div>
+        </div>
+        <div class="setting">
+          <label for="format">FORMAT</label>
+          <div class="select-wrap"><select id="format">
+            <option value="mp4">MP4 Video</option>
+            <option value="webm">WebM Video</option>
+            <option value="mp3">MP3 Audio</option>
+          </select><span>⌄</span></div>
+        </div>
+      </div>
+
+      <button class="main-btn" type="submit"><span class="btn-icon">↓</span><span id="btnText">DOWNLOAD SEKARANG</span><small>↗</small></button>
+    </form>
+
+    <div id="status" class="status hidden"></div>
+    <div class="progress-wrap hidden" id="progressWrap"><div class="progress-top"><span id="progressText">Memproses...</span><b id="progressPercent">0%</b></div><div class="progress-track"><i id="progressBar"></i></div></div>
+    <section class="utility-panel premium-panel" id="premiumSection" aria-labelledby="premiumTitle"><div class="utility-head"><div><span class="tiny-label">AKSES EKSTRA</span><h3 id="premiumTitle">AM Premium</h3></div><span id="premiumBadge" class="premium-badge">FREE</span></div><p id="premiumMessage">Gunakan magic link resmi untuk mengaktifkan AM Premium di perangkat ini.</p><button type="button" id="claimPremium" class="utility-btn">Klaim magic link</button><p id="premiumFeedback" class="utility-note" aria-live="polite"></p></section>
+    <div class="panel-foot"><span>⚡ VINN503</span><span>•</span><span>HD Video/Foto = upload langsung dari galeri • HD Enhance</span></div>
+    <section class="utility-panel" aria-labelledby="systemTitle"><div class="utility-head"><div><span class="tiny-label">TOOLS</span><h3 id="systemTitle">Status sistem</h3></div><span id="systemStatus" class="system-pill checking">Memeriksa…</span></div><p id="systemMessage">Memeriksa koneksi ke server VINN503.</p><button type="button" id="refreshStatus" class="utility-btn">↻ Periksa lagi</button></section>
+    <section class="utility-panel" aria-labelledby="historyTitle"><div class="utility-head"><div><span class="tiny-label">AKTIVITAS LOKAL</span><h3 id="historyTitle">Riwayat aktivitas</h3></div><button type="button" id="clearHistory" class="text-btn">Hapus riwayat</button></div><p class="utility-note">Riwayat disimpan di browser perangkat ini, bukan di akun.</p><ul id="downloadHistory" class="history-list"><li class="history-empty">Belum ada aktivitas.</li></ul></section>
+    <section class="utility-panel bug-panel" aria-labelledby="bugTitle"><div class="utility-head"><div><span class="tiny-label">BANTU PENGEMBANGAN</span><h3 id="bugTitle">Laporkan kendala</h3></div></div><label class="bug-label" for="bugDescription">Apa yang terjadi?</label><textarea id="bugDescription" rows="3" maxlength="600" placeholder="Contoh: download TikTok gagal setelah 30 detik..."></textarea><button type="button" id="sendBugReport" class="utility-btn">Buat laporan bug</button><p id="bugFeedback" class="utility-note" aria-live="polite">Laporan akan dikirim langsung ke dashboard admin VINN503.</p></section>
+  </div>
+</section>
+
+<section class="live-dashboard" aria-label="Info langsung">
+  <div class="live-head"><span class="tiny-label">VINN503 LIVE HUB</span><h2>Info sekitar kamu</h2><p>Jam lokal, prakiraan cuaca BMKG, info gempa, dan akses bot WhatsApp.</p></div>
+  <div class="live-grid">
+    <article class="live-card clock-card"><div class="live-icon">◷</div><span class="live-label">JAM LOKAL</span><strong id="liveClock">--:--:--</strong><small id="liveDate">Memuat tanggal…</small></article>
+    <article class="live-card weather-card"><div class="live-icon">☁</div><span class="live-label">CUACA BMKG</span><strong id="weatherTitle">Prakiraan cuaca</strong><small id="weatherDesc">Masukkan kode wilayah BMKG untuk melihat cuaca.</small><div class="weather-form"><input id="bmkgAdm4" inputmode="decimal" placeholder="Kode wilayah adm4" aria-label="Kode wilayah BMKG adm4"><button id="loadWeather" type="button">Cek</button></div></article>
+    <article class="live-card quake-card"><div class="live-icon">⌁</div><span class="live-label">GEMPA TERKINI</span><strong id="quakeMagnitude">Memuat…</strong><small id="quakeDetail">Mengambil data resmi BMKG…</small><div class="map-caption">◉ LIVE SEISMIC MAP · PETA ASLI</div><div id="quakeMap" class="quake-map" aria-label="Peta lokasi gempa BMKG"></div><div class="quake-links"><a id="quakeGoogleMap" href="https://www.google.com/maps/search/?api=1&query=Indonesia" target="_blank" rel="noopener noreferrer">Buka Google Maps ↗</a><a href="https://data.bmkg.go.id/gempabumi/" target="_blank" rel="noopener noreferrer">Data resmi BMKG ↗</a></div><small class="live-source">Peta OpenStreetMap asli dengan gaya visual cyber. Data gempa dari BMKG.</small></article>
+    <article class="live-card wa-card"><div class="live-icon">◉</div><span class="live-label">WHATSAPP BOT</span><strong>Bot VINN503</strong><span class="dev-pill"><i></i> MASIH PENGEMBANGAN</span><small>Bot otomatis belum aktif. Fitur ini sedang dikembangkan dan memerlukan koneksi backend WhatsApp resmi.</small><div class="weather-form"><input id="waNumber" inputmode="numeric" placeholder="Nomor admin, contoh 62812…" aria-label="Nomor WhatsApp admin"><button id="openWa" type="button">Chat admin</button></div><small class="live-source">Notifikasi: integrasi bot otomatis belum tersedia. Tombol hanya membuka chat admin.</small></article>
+  </div>
+</section>
+
+<section class="feature-grid">
+  <article><div class="feature-icon">⚡</div><div><b>Super Fast</b><p>UI ringan dan responsif.</p></div></article>
+  <article><div class="feature-icon">HD</div><div><b>High Quality</b><p>Upscale & enhance foto.</p></div></article>
+  <article><div class="feature-icon">↑</div><div><b>Upload Direct</b><p>Video & foto dari HP.</p></div></article>
+</section>
+
+<section class="how" id="helpSection">
+  <div class="section-label">HOW IT WORKS</div>
+  <h2>Semudah <span>3 langkah.</span></h2>
+  <div class="steps">
+    <div><strong>01</strong><b>Paste / Upload</b><p>URL untuk YouTube/TikTok, upload untuk HD.</p></div>
+    <div><strong>02</strong><b>Pilih kualitas</b><p>Tentukan resolusi dan format yang diinginkan.</p></div>
+    <div><strong>03</strong><b>Download</b><p>File hasil langsung tersimpan ke perangkat.</p></div>
+  </div>
+  <div class="feature-list-wrap">
+    <div class="section-label">FITUR VINN503</div>
+    <h3>Yang bisa kamu gunakan</h3>
+    <div class="feature-list">
+      <article><span>⇩</span><div><b>Media Downloader</b><p>Unduh media dari tautan yang didukung, lalu pilih format atau kualitas yang tersedia.</p></div></article>
+      <article><span>HD</span><div><b>AI Image Upscaler</b><p>Tingkatkan resolusi foto dengan fitur upscale yang tersedia di halaman.</p></div></article>
+      <article><span>↑</span><div><b>Upload dari perangkat</b><p>Pilih foto atau video langsung dari HP untuk fitur yang mendukung upload.</p></div></article>
+      <article><span>◷</span><div><b>Riwayat aktivitas</b><p>Lihat aktivitas unduhan sebelumnya di perangkat ini.</p></div></article>
+      <article><span>▧</span><div><b>Status sistem</b><p>Periksa kesiapan layanan dan alat pendukung seperti downloader dan FFmpeg.</p></div></article>
+      <article><span>✦</span><div><b>VINN AI Chat</b><p>Ajukan pertanyaan melalui panel chat AI. Fitur ini memerlukan API key yang valid di server.</p></div></article>
+      <article><span>♫</span><div><b>Pemutar musik</b><p>Cari lagu di YouTube atau tempel tautan YouTube untuk memuat pemutar.</p></div></article>
+      <article><span>☼</span><div><b>Menu & tema</b><p>Akses navigasi utama, ganti mode tampilan, dan buka halaman admin.</p></div></article>
+      <article><span>⚑</span><div><b>Laporan kendala</b><p>Kirim laporan jika proses download atau fitur lain mengalami masalah.</p></div></article>
+    </div>
+  </div>
+</section>
+
+<section class="legal"><b>⚠ Penggunaan yang bertanggung jawab</b><p>Gunakan VINN503 untuk konten milikmu sendiri atau konten yang kamu punya izin untuk simpan. Jangan menghapus watermark atau melanggar hak cipta.</p></section>
+</main>
+<footer><div class="footer-brand">VINN503</div><span>© 2026 VINN503 Media Downloader</span></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-slim@latest/dist/umd/2x.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@upscalerjs/esrgan-slim@latest/dist/umd/4x.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/upscaler@latest/dist/browser/umd/upscaler.min.js"></script>
+<script src="/auth-gate.js"></script>
+<script src="/script.js"></script>
+<script src="/menu.js"></script>
+<!-- Musik latar dimulai setelah pengguna mengetuk tombol sidik jari (gesture browser). -->
+<div id="vinn503MusicPlayer" aria-hidden="true" style="position:fixed;width:1px;height:1px;left:-10px;bottom:0;overflow:hidden;opacity:0;pointer-events:none"></div>
+<script>
+(function(){
+  var defaultVideo='bx6IPdHxGlI';
+  var currentVideo=defaultVideo;
+  var host=document.getElementById('vinn503MusicPlayer');
+  var frame=null;
+  function videoId(value){
+    try { var u=new URL(value); if(u.hostname==='youtu.be') return u.pathname.split('/').filter(Boolean)[0]||''; if(u.hostname.includes('youtube.com')||u.hostname.includes('youtube-nocookie.com')) { if(u.searchParams.get('v')) return u.searchParams.get('v'); var m=u.pathname.match(/\/(?:embed|shorts|live)\/([\w-]+)/); return m?m[1]:''; } } catch(e){} return /^[\w-]{11}$/.test(value.trim())?value.trim():'';
+  }
+  function setActive(active){document.querySelectorAll('.menu-toggle').forEach(function(btn){btn.classList.remove('music-active');btn.querySelectorAll('.music-indicator').forEach(function(ind){ind.remove()});btn.setAttribute('title','Menu');btn.setAttribute('aria-label','Buka menu')});var eq=document.getElementById('musicEq');if(eq)eq.classList.toggle('playing',active);}
+  function playVideo(id){if(!id){alert('Link YouTube belum valid. Tempel tautan video YouTube yang benar.');return false;}currentVideo=id;if(!host)return false;host.replaceChildren();frame=document.createElement('iframe');frame.width='1';frame.height='1';frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&playsinline=1&loop=1&playlist='+encodeURIComponent(id);frame.title='VINN503 music player';frame.allow='autoplay; encrypted-media; picture-in-picture';frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('tabindex','-1');host.appendChild(frame);setActive(true);var now=document.getElementById('musicNowPlaying');if(now)now.textContent='Memutar pilihan YouTube';return true;}
+  window.startVINN503Music=function(){playVideo(currentVideo||defaultVideo)};
+  var form=document.getElementById('musicSearchForm'),input=document.getElementById('musicSearchInput'),urlInput=document.getElementById('musicUrlInput');
+  function searchYouTube(){var q=(input&&input.value||'').trim();if(!q){if(input)input.focus();return;}window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank','noopener');}
+  form&&form.addEventListener('submit',function(e){e.preventDefault();searchYouTube()});
+  document.getElementById('musicSearchYouTube')?.addEventListener('click',searchYouTube);
+  document.getElementById('musicLoadUrl')?.addEventListener('click',function(){var id=videoId(urlInput.value);if(playVideo(id)&&input)input.value='';});
+  document.getElementById('musicPlaySelected')?.addEventListener('click',function(){var value=(urlInput&&urlInput.value||'').trim();var id=videoId(value);if(!id){searchYouTube();return;}playVideo(id);});
+  // Preserve autoplay-on-entry behavior: the fingerprint gate calls this after the user taps to enter.
+})();
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+(function(){
+ const clock=document.getElementById('liveClock'), date=document.getElementById('liveDate');
+ if(clock&&date){function tick(){const n=new Date();clock.textContent=new Intl.DateTimeFormat('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(n);date.textContent=new Intl.DateTimeFormat('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(n);}tick();setInterval(tick,1000);}
+ const quakeMag=document.getElementById('quakeMagnitude'), quakeDetail=document.getElementById('quakeDetail');
+ let quakeMap=null,quakeMarker=null;try{if(window.L&&document.getElementById('quakeMap')){quakeMap=L.map('quakeMap',{zoomControl:false,scrollWheelZoom:false,attributionControl:false}).setView([-2.5,118],4);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',subdomains:'abc',maxZoom:19}).addTo(quakeMap);L.control.zoom({position:'bottomright'}).addTo(quakeMap);}}catch(e){}
+ if(quakeMag&&quakeDetail){fetch('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json').then(r=>{if(!r.ok)throw Error('Data tidak tersedia');return r.json()}).then(j=>{const g=j.Infogempa.gempa;quakeMag.textContent='M '+g.Magnitude;quakeDetail.textContent=(g.Wilayah||'Wilayah tidak tersedia')+' · '+(g.Tanggal||'')+' '+(g.Jam||'')+' · '+(g.Potensi||'Status tsunami tidak tersedia');if(quakeMap&&g.Coordinates){let c=g.Coordinates.split(',').map(Number);if(c.length===2&&c.every(Number.isFinite)){const gm=document.getElementById('quakeGoogleMap');if(gm)gm.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(c[0]+','+c[1]);if(quakeMarker)quakeMap.removeLayer(quakeMarker);quakeMarker=L.circleMarker([c[0],c[1]],{radius:9,color:'#ff3b65',weight:3,fillColor:'#ff3b65',fillOpacity:.8}).addTo(quakeMap).bindPopup('Gempa BMKG • M '+g.Magnitude);quakeMap.setView([c[0],c[1]],6);setTimeout(()=>quakeMap.invalidateSize(true),300);setTimeout(()=>quakeMap.invalidateSize(true),1000);}}}).catch(()=>{quakeMag.textContent='Belum tersedia';quakeDetail.textContent='Data BMKG tidak dapat dimuat. Coba buka tautan resmi di bawah.'});}
+ const weatherBtn=document.getElementById('loadWeather');if(weatherBtn)weatherBtn.addEventListener('click',function(){const code=document.getElementById('bmkgAdm4').value.trim(), title=document.getElementById('weatherTitle'), desc=document.getElementById('weatherDesc');if(!/^\d{2}\.\d{2}\.\d{2}\.\d{4}$/.test(code)){desc.textContent='Isi kode adm4 format 00.00.00.0000 dari wilayah BMKG.';return;}title.textContent='Memuat…';desc.textContent='Mengambil prakiraan BMKG…';fetch('https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4='+encodeURIComponent(code)).then(r=>{if(!r.ok)throw Error();return r.json()}).then(j=>{let item=null;for(const group of (j.data||[])){if(group.cuaca&&group.cuaca[0]&&group.cuaca[0][0]){item=group.cuaca[0][0];break;}}if(!item)throw Error();title.textContent=(item.t!=null?item.t+'°C · ':'')+(item.weather_desc||'Cuaca tersedia');desc.textContent='Kelembapan '+(item.hu??'—')+'% · Angin '+(item.ws??'—')+' km/jam · '+(item.local_datetime||'');}).catch(()=>{title.textContent='Data belum tersedia';desc.textContent='Periksa kode wilayah dan koneksi, atau buka prakiraan resmi BMKG.';});});
+ const waBtn=document.getElementById('openWa');if(waBtn)waBtn.addEventListener('click',function(){let n=document.getElementById('waNumber').value.replace(/\D/g,'');if(n.startsWith('0'))n='62'+n.slice(1);if(!/^62\d{8,15}$/.test(n)){document.getElementById('waNumber').focus();return;}window.open('https://wa.me/'+n+'?text='+encodeURIComponent('Halo, saya ingin bertanya tentang VINN503.'),'_blank','noopener');});
+})();
+</script>
+
+<!-- VINN503 AI chat is opened from the navigation menu -->
+<section class="vinn-ai-window" id="vinnAiWindow" aria-label="Chat VINN AI" aria-hidden="true">
+  <header class="vinn-ai-head"><div class="ai-avatar">✦</div><div class="ai-head-copy"><strong>VINN AI</strong><small><i></i> Asisten tanya jawab</small></div><button id="vinnAiClose" type="button" aria-label="Tutup chat">×</button></header>
+  <div class="vinn-ai-notice">Jangan kirim kata sandi atau informasi pribadi sensitif.</div>
+  <div class="vinn-ai-messages" id="vinnAiMessages" aria-live="polite"><div class="ai-msg bot"><span>✦</span><p>Halo! Aku VINN AI. Tanyakan apa saja—aku akan mencoba membantu. ✨</p></div></div>
+  <div class="vinn-ai-suggestions"><button type="button" data-ai-q="Cara menggunakan VINN503 gimana?">Cara pakai</button><button type="button" data-ai-q="Apa itu gempa bumi?">Tentang gempa</button><button type="button" data-ai-q="Apa saja fitur VINN503?">Fitur website</button></div>
+  <form class="vinn-ai-form" id="vinnAiForm"><input id="vinnAiInput" maxlength="600" autocomplete="off" placeholder="Tulis pertanyaan…" aria-label="Tulis pertanyaan"><button type="submit" aria-label="Kirim pesan">➤</button></form>
+</section>
+<script src="/ai-chat.js"></script>
+
+</body>
+</html>

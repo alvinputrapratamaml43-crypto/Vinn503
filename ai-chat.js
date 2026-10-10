@@ -1,0 +1,11 @@
+(()=>{
+const nav=document.getElementById('vinnAiNavLink'),win=document.getElementById('vinnAiWindow'),close=document.getElementById('vinnAiClose'),form=document.getElementById('vinnAiForm'),input=document.getElementById('vinnAiInput'),messages=document.getElementById('vinnAiMessages');
+if(!win||!form||!input||!messages)return;
+const history=[];
+function toggle(open){win.classList.toggle('open',open);win.setAttribute('aria-hidden',String(!open));if(open)setTimeout(()=>input.focus(),120)}
+nav?.addEventListener('click',e=>{e.preventDefault();toggle(true)});close?.addEventListener('click',()=>toggle(false));
+function add(text,who){const row=document.createElement('div');row.className='ai-msg '+who;if(who==='bot'){const icon=document.createElement('span');icon.textContent='✦';row.append(icon)}const p=document.createElement('p');p.textContent=text;row.append(p);messages.append(row);messages.scrollTop=messages.scrollHeight}
+async function send(text){const q=(text||'').trim();if(!q)return;add(q,'user');input.value='';input.disabled=true;const sendBtn=form.querySelector('button[type="submit"]');if(sendBtn)sendBtn.disabled=true;const typing=document.createElement('div');typing.className='ai-msg bot';typing.id='vinnAiTyping';const ico=document.createElement('span');ico.textContent='✦';const p=document.createElement('p');p.textContent='VINN AI sedang berpikir…';typing.append(ico,p);messages.append(typing);messages.scrollTop=messages.scrollHeight;
+try{const r=await fetch('/api/ai-chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history})});const data=await r.json();typing.remove();if(!r.ok)throw new Error(data.error||'Permintaan AI gagal.');const answer=String(data.answer||'AI belum memberikan jawaban.');add(answer,'bot');history.push({role:'user',text:q},{role:'model',text:answer});if(history.length>12)history.splice(0,history.length-12)}catch(e){typing.remove();add(e.message||'Gagal menghubungi AI. Periksa koneksi dan konfigurasi server.','bot')}finally{input.disabled=false;if(sendBtn)sendBtn.disabled=false;input.focus()}}
+form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});document.querySelectorAll('[data-ai-q]').forEach(b=>b.addEventListener('click',()=>send(b.getAttribute('data-ai-q'))));
+})();
